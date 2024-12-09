@@ -21,11 +21,14 @@ def xml_to_markdown(input_xml, output_md):
             name = type_desc.find("ns:name", namespace).text
             description = sanitize_text(type_desc.find("ns:description", namespace).text or "")
             supertype = type_desc.find("ns:supertypeName", namespace).text.split(".")[-1]
+            # Extract package name (everything except the last part of the name)
+            package_name = ".".join(name.split(".")[:-1])
 
             # Write header information
-            md_file.write(f"### {name.split('.')[-1].replace('Token', '').strip()}\n\n")
+            md_file.write(f"### {name.split('.')[-1].strip()}\n\n")
             md_file.write(f"<details>\n<summary>{description}</summary>\n\n")
-            md_file.write(f"**Parent Name:** {supertype}\n\n")
+            md_file.write(f"**Package Name:** ```{package_name}```\n\n")
+            md_file.write(f"**Parent Type:** ```{supertype}```\n\n")
 
             # Process features
             features = type_desc.findall(".//ns:featureDescription", namespace)
@@ -43,7 +46,7 @@ def xml_to_markdown(input_xml, output_md):
                     # Add data to the table row
                     md_file.write(f"| {feature_name} | {feature_description} | {range_type} | {element_type} |\n")
             else:
-                md_file.write("No <features> found in this section.\n\n")
+                md_file.write("No variables specific to this type.\n\n")
 
             md_file.write("</details>\n\n")
 
